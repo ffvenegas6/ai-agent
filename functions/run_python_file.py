@@ -1,18 +1,27 @@
 import os
+from pathlib import Path
 import subprocess
 from google.genai import types
 
 
 def run_python_file(working_directory, file_path, args=[]):
     try:
-        file_rel_path = os.path.join(working_directory, file_path)  
+        file_rel_path = os.path.join(working_directory, file_path)
         print(file_rel_path)
         file_abs_path = os.path.abspath(file_rel_path)
+        print(file_abs_path)
+        work_abs_path = os.path.abspath(working_directory)
+        print(work_abs_path)
+        work_abs_path = Path(working_directory).resolve()
+        file_abs_path = (work_abs_path / file_path).resolve()
     except Exception as e:
         return f'Error: \"{e}\"'
 
-    if working_directory not in file_abs_path:
+    if not file_abs_path.is_relative_to(work_abs_path):
         return f'Error: Cannot execute "{file_path}" as it is outside the permitted working directory'
+
+    # if working_directory not in file_abs_path:
+    #     return f'Error: Cannot execute "{file_path}" as it is outside the permitted working directory'
 
     try:
         if not os.path.exists(file_abs_path):

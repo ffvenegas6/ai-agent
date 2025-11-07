@@ -1,20 +1,20 @@
 import os
+from pathlib import Path
 from google.genai import types
 
 
 def get_files_info(working_directory, directory="."):
     try:
-        dir_rel_path = os.path.join(working_directory, directory)  
-        dir_abs_path = os.path.abspath(dir_rel_path)
+        dir_rel_path = os.path.join(working_directory, directory)
+        work_abs_path = Path(working_directory).resolve()
+        dir_abs_path = (work_abs_path / directory).resolve()
+        print(f"Directory relative path: {dir_rel_path}")
+        print(f"Working directory absolute path: {work_abs_path}")
+        print(f"Directory absolute path: {dir_abs_path}")
     except Exception as e:
         return f'Error: \"{e}\"'
 
-    # print(f"Working directory: {working_directory}")
-    # print(f"Directory: {directory}")
-    # print(f"Directory relative path: {dir_rel_path}")
-    # print(f"Directory absolute path: {dir_abs_path}")
-
-    if working_directory not in dir_abs_path:
+    if not dir_abs_path.is_relative_to(work_abs_path):
         return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
 
     try:

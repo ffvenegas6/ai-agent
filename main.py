@@ -63,36 +63,69 @@ def main():
 
     All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
     """
-    # - Execute Python files with optional arguments
-    
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], system_instruction=system_prompt,
-        ),
-    )
-    
-    function_calls = response.function_calls
-    # print(function_calls)
-    if function_calls:
-        for function_call_part in function_calls:
-            function_call_result = call_function(function_call_part, verbose=True)
-            if function_call_result.parts[0].function_response.response:
-                print(f"-> {function_call_result.parts[0].function_response.response}")
-            else:
-                raise Exception("Fatal Exception")
-            # print(f"Calling function: {function_call_part.name}({function_call_part.args})")
-    else:
-        text = response.text
-        print(text)
+    i = 0
+    while i < 20:
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-001",
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions], system_instruction=system_prompt,
+                ),
+            )
+        except Exception as e:
+            print(f"Error while generating content with gemini api: {e}")
+            sys.exit(1)
 
-    if verbose:
-        prompt_tokens = response.usage_metadata.prompt_token_count
-        response_tokens = response.usage_metadata.candidates_token_count
-        print(f"User prompt: {prompt}")
-        print(f"Prompt tokens: {prompt_tokens}")
-        print(f"Response tokens: {response_tokens}")
+        function_calls = response.function_calls
+        # print("Function calls:")
+        # print(function_calls)
+        
+        # text = response.text
+        # print("Text:")
+        # print(text)
 
+        candidates = response.candidates
+        # print("Candidates:")
+        # print(candidates)
+
+        if candidates:
+            for candidate in candidates:
+                # print("Candidate content:")
+                # print(candidate.content)
+                # print(type(candidate.content))
+                messages.append(candidate.content)
+
+        if function_calls:
+            for function_call_part in function_calls:
+                try:
+                    function_call_result = call_function(function_call_part, verbose=True)
+                    function_response = function_call_result.parts[0].function_response.response
+                    if function_response:
+                        # print("Function response:")
+                        # print(f"-> {function_response}")
+                        messages.append(
+                            types.Content(role="user", parts=[types.Part(text=function_response["result"])]),
+                        )
+                    else:
+                        raise Exception("Fatal Exception")
+                except Exception as e:
+                    print(f"Error while calling function: {e}")
+                    sys.exit(1)
+        elif response.text:
+            print("Final response:")
+            print(response.text)
+            break
+
+        # if verbose:
+        #     prompt_tokens = response.usage_metadata.prompt_token_count
+        #     response_tokens = response.usage_metadata.candidates_token_count
+        #     print(f"User prompt: {prompt}")
+        #     print(f"Prompt tokens: {prompt_tokens}")
+        #     print(f"Response tokens: {response_tokens}")
+
+        i += 1
+
+    # print("We are out of the loop")
 if __name__ == "__main__":
     main()

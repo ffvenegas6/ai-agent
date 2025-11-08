@@ -8,9 +8,9 @@ def get_files_info(working_directory, directory="."):
         dir_rel_path = os.path.join(working_directory, directory)
         work_abs_path = Path(working_directory).resolve()
         dir_abs_path = (work_abs_path / directory).resolve()
-        print(f"Directory relative path: {dir_rel_path}")
-        print(f"Working directory absolute path: {work_abs_path}")
-        print(f"Directory absolute path: {dir_abs_path}")
+        # print(f"Directory relative path: {dir_rel_path}")
+        # print(f"Working directory absolute path: {work_abs_path}")
+        # print(f"Directory absolute path: {dir_abs_path}")
     except Exception as e:
         return f'Error: \"{e}\"'
 

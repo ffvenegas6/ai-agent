@@ -7,9 +7,9 @@ def write_file(working_directory, file_path, content):
         file_rel_path = os.path.join(working_directory, file_path)  
         work_abs_path = Path(working_directory).resolve()
         file_abs_path = (work_abs_path / file_path).resolve()
-        print(f"File relative path: {file_rel_path}")
-        print(f"Working directory absolute path: {work_abs_path}")
-        print(f"File absolute path: {file_abs_path}")
+        # print(f"File relative path: {file_rel_path}")
+        # print(f"Working directory absolute path: {work_abs_path}")
+        # print(f"File absolute path: {file_abs_path}")
     except Exception as e:
         return f'Error: \"{e}\"'
 
